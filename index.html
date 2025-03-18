@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color:rgb(152, 130, 161);
+            padding: 50px;
+        }
+        input {
+            padding: 10px;
+            margin-top: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    <form id="url-form">
+        <input type="text" id="url-input" placeholder="Enter your URL here" required />
+        <br><br>
+        <input type="text" id="alias-input" placeholder="Enter custom alias (optional)" />
+        <br><br>
+        <button type="submit">Shorten URL</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("url-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            let url = document.getElementById("url-input").value;
+            let alias = document.getElementById("alias-input").value; // Get the custom alias
+
+            // Check if the URL is not empty
+            if (url === "") {
+                alert("Please enter a URL");
+                return;
+            }
+
+            let response = await fetch("/shorten", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `url=${encodeURIComponent(url)}&alias=${encodeURIComponent(alias)}`
+            });
+
+            let data = await response.json();
+
+            // Display the shortened URL or error message
+            if (data.short_url) {
+                document.getElementById("result").innerHTML = `
+                    <p>Shortened URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a></p>
+                `;
+            } else {
+                document.getElementById("result").innerHTML = `<p style="color: red;">${data.error}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
